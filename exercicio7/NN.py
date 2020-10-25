@@ -1,3 +1,5 @@
+import math
+
 class NN:
     """
     weightsMatrix input example: [[[0.1, 0.2, 0.2], [0.1, 0.1, 0.1]]]
@@ -9,14 +11,14 @@ class NN:
     Default activation functions is ReLU. Any neuron's activaction function can be overriden using the method setActivationFunction
     """
     DEBUG = False
-    customActivationFunctions = [[]],
 
     def __init__(self, weightsMatrix):
         self.weightsMatrix = weightsMatrix
         self.biases = [1 for i in range(len(weightsMatrix))]
+        self.activFuncs = [[self.ReLU for i in range(len(layer))] for layer in weightsMatrix]
 
-    def setActivationFunction(self):
-        print("setActivationFunction")
+    def setActivationFunction(self, idxLayer, idxNeuron, func):
+        self.activFuncs[idxLayer][idxNeuron] = func
 
     def predict(self, input):
         for idxLayer in range(len(self.weightsMatrix)):
@@ -33,12 +35,19 @@ class NN:
                     if(self.DEBUG):
                         print(neuronEdges[idxEdge+1], input[idxEdge], neuronEdges[idxEdge+1] * input[idxEdge])
                     integration += neuronEdges[idxEdge+1] * input[idxEdge]
-                activationFunction = self.ReLU
+                activationFunction = self.activFuncs[idxLayer][idxNeuron]
                 nextInput.append(activationFunction(integration))
             input = nextInput
             if(self.DEBUG):
                 print(str(idxLayer) + " layer: "+ str(input))
         return input
             
-    def ReLU(self, value):
-        return value if value > 0 else 0
+    def ReLU(self, x):
+        return x if x > 0 else 0
+    
+    def sigmoid(self, x):
+        a = 1
+        return 1 / (1 + math.exp(-a * x))
+    
+    def tanh(self, x):
+        return math.tanh(x)
